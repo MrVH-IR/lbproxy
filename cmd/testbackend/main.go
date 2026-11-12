@@ -1,7 +1,6 @@
 package main
 
 import (
-	"DarcyProxy/internal/testbackend"
 	"flag"
 	"fmt"
 	"log"
@@ -11,7 +10,7 @@ import (
 
 func main() {
 	port := flag.Int("port", 9101, "port to listen on")
-	name := flag.String("name", "b1", "name of the backend")
+	name := flag.String("name", "b1", "backend name")
 	flag.Parse()
 
 	srv := &http.Server{
