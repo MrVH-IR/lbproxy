@@ -1,5 +1,7 @@
 listen: ":8080"
-algorithm: round_robin
+algorithm: least_conn
+log_dir: logs
+log_retention_days: 7
 backends:
   - "http://localhost:9101"
   - "http://localhost:9102"

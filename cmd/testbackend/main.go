@@ -14,8 +14,10 @@ func main() {
 	flag.Parse()
 
 	srv := &http.Server{
-		Addr:              fmt.Sprintf(":%d", *port),
-		Handler:           testbackend.New(*name),
+		Addr: fmt.Sprintf(":%d", *port),
+		Handler: http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			fmt.Fprintf(w, "backend=%s path=%s\n", *name, r.URL.Path)
+		}),
 		ReadHeaderTimeout: 5 * time.Second,
 	}
 

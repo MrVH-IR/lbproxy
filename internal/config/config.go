@@ -4,12 +4,17 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"strings"
+
+	"gopkg.in/yaml.v3"
 )
 
 type Config struct {
-	Listen    string   `yaml:"listen"`
-	Algorithm string   `yaml:"algorithm"`
-	Backends  []string `yaml:"backends"`
+	Listen           string   `yaml:"listen"`
+	Algorithm        string   `yaml:"algorithm"`
+	Backends         []string `yaml:"backends"`
+	LogDir           string   `yaml:"log_dir"`
+	LogRetentionDays int      `yaml:"log_retention_days"`
 }
 
 func Load(path string) (*Config, error) {
@@ -32,9 +37,24 @@ func (c *Config) Validate() error {
 	if c.Listen == "" {
 		return errors.New("listen is required")
 	}
-	// TODO (تمرین ۱): دو چک دیگه
-	// - اگه len(c.Backends) == 0 خطا بده
-	// - اگه c.Algorithm مقدارش "round_robin" نبود خطا بده
-	//   (با fmt.Errorf و %q اسم مقدار نامعتبر رو توی پیام بذار)
+	if len(c.Backends) == 0 {
+		return errors.New("at least one backend is required")
+	}
+	if c.Algorithm == "" {
+		c.Algorithm = "least_conn"
+	}
+	c.Algorithm = strings.ToLower(strings.TrimSpace(c.Algorithm))
+	if c.Algorithm != "least_conn" && c.Algorithm != "round_robin" {
+		return fmt.Errorf("unsupported algorithm %q (use least_conn or round_robin)", c.Algorithm)
+	}
+	if c.LogDir == "" {
+		c.LogDir = "logs"
+	}
+	if c.LogRetentionDays == 0 {
+		c.LogRetentionDays = 7
+	}
+	if c.LogRetentionDays < 1 {
+		return errors.New("log_retention_days must be at least 1")
+	}
 	return nil
 }
